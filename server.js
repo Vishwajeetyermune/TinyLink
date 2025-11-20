@@ -94,7 +94,9 @@ app.post('/api/links', async (req, res) => {
 
     if (code) {
       if (!CODE_REGEX.test(code)) {
-        return res.status(400).json({ error: 'code must match /^[A-Za-z0-9]{6,8}$/' });
+        return res.status(400).json({
+          error: 'Custom code must be 6–8 characters and use letters or numbers only.'
+        });        
       }
     } else {
       // generate until unique (rare)
@@ -203,7 +205,6 @@ app.get('/code/:code', (req, res) => {
    - 302 redirect if found 
    - 404 if not found
 */
-
 app.get('/:code', async (req, res, next) => {
   const code = req.params.code;
   // If code doesn't match expected pattern
