@@ -114,13 +114,23 @@ async function load(q) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Health
-  const healthEl = document.getElementById('health');
+  const healthDot = document.getElementById('healthDot');
   try {
     const h = await (await fetch('/healthz')).json();
-    healthEl.innerText = h.ok ? 'ok' : 'down';
+    
+    if (h.ok) {
+      healthDot.classList.remove("bg-red-500", "bg-gray-400");
+      healthDot.classList.add("bg-green-500");
+    } else {
+      healthDot.classList.remove("bg-green-500", "bg-gray-400");
+      healthDot.classList.add("bg-red-500");
+    }
+  
   } catch {
-    healthEl.innerText = 'down';
+    healthDot.classList.remove("bg-green-500", "bg-gray-400");
+    healthDot.classList.add("bg-red-500");
   }
+  
 
   const form = document.getElementById('createForm');
   const createMsg = document.getElementById('createMsg');
