@@ -18,6 +18,14 @@ function truncate(str, n = 80) {
   return str.length > n ? str.slice(0, n - 1) + '…' : str;
 }
 
+function resetAllCopyButtons() {
+  document.querySelectorAll('.copyBtn').forEach(btn => {
+    btn.innerText = 'Copy';
+    btn.classList.remove("bg-green-700");
+    btn.classList.add("bg-green-500");
+  });
+}
+
 async function fetchLinks(q) {
   const url = new URL('/api/links', window.location.origin);
   if (q) url.searchParams.set('q', q);
@@ -39,14 +47,60 @@ async function load(q) {
     }
     rows.innerHTML = data.map(r => `
       <tr class="border-t">
-        <td class="px-2 py-2"><a class="text-blue-600" href="/${r.code}" target="_blank">${r.code}</a></td>
-        <td class="px-2 py-2" title="${r.target_url}">${truncate(r.target_url, 120)}</td>
-        <td class="px-2 py-2">${r.clicks}</td>
-        <td class="px-2 py-2">${timeAgo(r.last_clicked)}</td>
-        <td class="px-2 py-2">
-          <button data-code="${r.code}" class="copyBtn mr-2 px-2 py-1 border rounded">Copy</button>
-          <a href="/code/${r.code}" class="mr-2 text-sm underline">Stats</a>
-          <button data-del="${r.code}" class="delBtn px-2 py-1 border rounded text-red-600">Delete</button>
+    
+        <!-- Code -->
+        <td class="px-3 py-2 w-28 font-mono">
+          <a href="/${r.code}" 
+             target="_blank" 
+             class="text-blue-600 underline">
+            ${r.code}
+          </a>
+        </td>
+    
+        <!-- URL -->
+        <td class="px-3 py-2 truncate max-w-xs" title="${r.target_url}">
+          <a href="${r.target_url}" 
+             target="_blank" 
+             class="text-blue-600 underline">
+            ${truncate(r.target_url, 80)}
+          </a>
+        </td>
+    
+        <!-- Clicks -->
+        <td class="px-3 py-2 text-center w-20">
+          ${r.clicks}
+        </td>
+    
+        <!-- Last clicked -->
+        <td class="px-3 py-2 w-28 text-gray-500">
+          ${timeAgo(r.last_clicked)}
+        </td>
+    
+        <!-- Actions -->
+        <td class="px-3 py-2 w-36">
+          <div class="flex items-center gap-2">
+    
+            <!-- Fixed-width copy button, green & stable -->
+            <button 
+              data-code="${r.code}" 
+              class="copyBtn bg-green-500 text-white px-2 py-1 rounded text-xs w-16 text-center">
+              Copy
+            </button>
+    
+            <!-- Stats button -->
+            <a href="/code/${r.code}" 
+               class="bg-gray-200 px-2 py-1 rounded text-xs w-16 text-center">
+              Stats
+            </a>
+    
+            <!-- Delete button -->
+            <button 
+              data-del="${r.code}" 
+              class="delBtn bg-red-500 text-white px-2 py-1 rounded text-xs w-16 text-center">
+              Del
+            </button>
+    
+          </div>
         </td>
       </tr>
     `).join('');
@@ -127,8 +181,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const url = `${window.location.origin}/${code}`;
       try {
         await navigator.clipboard.writeText(url);
-        e.target.innerText = 'Copied';
-        setTimeout(() => e.target.innerText = 'Copy', 1200);
+          resetAllCopyButtons();
+          e.target.innerText = 'Copied';
+          e.target.classList.remove("bg-green-500");
+          e.target.classList.add("bg-green-700");
+          
+          setTimeout(() => {
+            e.target.classList.add("bg-green-500");
+            e.target.classList.remove("bg-green-700");
+          }, 600);
+        
       } catch {
         alert('Copy failed.');
       }
