@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TinyLink — Stats</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow">
+    <div class="max-w-4xl mx-auto p-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-semibold">TinyLink</a>
+      <div class="text-sm text-gray-600">Stats</div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-4">
+    <div id="content" class="bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-medium mb-2">Link stats</h2>
+      <div id="statBox" class="text-sm">
+        Loading...
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    (async () => {
+      const code = window.location.pathname.split('/').pop();
+      const box = document.getElementById('statBox');
+
+      try {
+        const res = await fetch('/api/links/' + code);
+        if (res.status === 200) {
+          const data = await res.json();
+          box.innerHTML = `
+            <div class="mb-2"><strong>Code:</strong> ${data.code}</div>
+            <div class="mb-2"><strong>Target:</strong> <a href="${data.target_url}" target="_blank">${data.target_url}</a></div>
+            <div class="mb-2"><strong>Clicks:</strong> ${data.clicks}</div>
+            <div class="mb-2"><strong>Last clicked:</strong> ${data.last_clicked || '—'}</div>
+            <div class="mt-4"><a class="text-blue-600" href="/">Back to dashboard</a></div>
+          `;
+        } else if (res.status === 404) {
+          box.innerText = 'Not found';
+        } else {
+          box.innerText = 'Error loading stats';
+        }
+      } catch (err) {
+        console.error(err);
+        box.innerText = 'Error loading stats';
+      }
+    })();
+  </script>
+</body>
+</html>
